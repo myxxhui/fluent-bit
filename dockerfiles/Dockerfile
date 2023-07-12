@@ -1,4 +1,3 @@
-
 # To use this container you may need to do the following:
 # https://askubuntu.com/a/1369504
 # sudo add-apt-repository ppa:jacob/virtualisation #(for Ubuntu 20.04)
@@ -183,7 +182,7 @@ EXPOSE 2020
 ENTRYPOINT [ "/fluent-bit/bin/fluent-bit" ]
 CMD ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.conf"]
 
-FROM debian:bullseye-slim as debug
+FROM debian:bookworm as debug
 ARG RELEASE_VERSION
 ENV FLUENT_BIT_VERSION=${RELEASE_VERSION}
 LABEL description="Fluent Bit multi-architecture debug container image" \
@@ -204,14 +203,17 @@ COPY --from=qemu-arm64 /usr/bin/qemu-aarch64-static /usr/bin/
 ENV DEBIAN_FRONTEND noninteractive
 
 # hadolint ignore=DL3008
-RUN echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list && \
+RUN echo "deb http://deb.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
+    echo "deb http://security.debian.org/debian-security bullseye-security main" >> /etc/apt/sources.list && \
+#    apt-get remove libssl3 && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
     libssl1.1 \
+#    libssl3 \
     libsasl2-2 \
     pkg-config \
     libpq5 \
-    libsystemd0/bullseye-backports \
+    libsystemd0/bookworm \
     zlib1g \
     ca-certificates \
     libatomic1 \
@@ -225,7 +227,7 @@ RUN echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/
     openssl \
     htop atop strace iotop sysstat ncdu logrotate hdparm pciutils psmisc tree pv \
     cmake make tar flex bison \
-    libssl-dev libsasl2-dev libsystemd-dev/bullseye-backports zlib1g-dev libpq-dev libyaml-dev postgresql-server-dev-all \
+    libssl-dev libsasl2-dev libsystemd-dev/bookworm zlib1g-dev libpq-dev libyaml-dev postgresql-server-dev-all  \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
